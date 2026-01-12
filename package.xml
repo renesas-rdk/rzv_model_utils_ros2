@@ -4,7 +4,7 @@
   <name>rzv_model_utils_ros2</name>
   <version>1.0.0</version>
   <description>RZV model utils package</description>
-  <maintainer email="todo@example.com">TODO</maintainer>
+  <maintainer email="baoan.du.xj@renesas.com">Baoan Du</maintainer>
   <license>AGPLv3</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
