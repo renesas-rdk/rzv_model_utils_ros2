@@ -28,6 +28,7 @@
 namespace rzv_model
 {
 
+// Structure to hold model configuration details
 struct ModelConfig
 {
   std::string model_path = "";
@@ -52,8 +53,9 @@ public:
     const std::string & message = "", const float pre_time = 0.0f, const float infer_time = 0.0f,
     const float post_time = 0.0f);
 
-  // TODO create function to load from yaml config model
-  // get path model
+  // Reads the model configuration from the package's YAML file.
+  // Loads model settings such as path, class names, and metadata.
+  // The caller may override the model path or class names using the optional parameters.
   static ModelConfig load_model_config(
     const std::string & package_name, const std::string & model_name);
 

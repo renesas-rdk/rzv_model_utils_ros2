@@ -15,6 +15,7 @@
 // be subject to different terms.
 // ********************************************************************************************************************
 #include "rzv_model_utils_ros2/model_utils.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 #include <algorithm>
 
@@ -196,7 +197,8 @@ void UtilsROS::encode_oriented_bounding_box_to_poses(
   }
 }
 
-std::unique_ptr<diagnostic_msgs::msg::DiagnosticStatus> UtilsROS::encode_inference_timing_diagnostic(
+std::unique_ptr<diagnostic_msgs::msg::DiagnosticStatus>
+UtilsROS::encode_inference_timing_diagnostic(
   const std::string & message, const float pre_time, const float infer_time, const float post_time)
 {
   auto msg = std::make_unique<diagnostic_msgs::msg::DiagnosticStatus>();
@@ -239,7 +241,8 @@ ModelConfig UtilsROS::load_model_config(
     }
 
   } catch (const std::exception & e) {
-    std::cerr << "[Utils] Error loading model '" << model_name << "': " << e.what() << "\n";
+    RCLCPP_ERROR(
+      rclcpp::get_logger("Utils"), "Error loading model '%s': %s", model_name.c_str(), e.what());
   }
 
   return cfg;
