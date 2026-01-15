@@ -31,39 +31,54 @@ The package follows a layered architecture:
 To register a new AI model, you must add an entry to the package’s YAML configuration.
 Each entry defines the model path, class names file, and optional metadata used by load_model_info().
 
-1. Add a model entry in YAML
+**1**. Place the YAML Configuration File
 
-    Example file:  `config/models/models_config.yaml`
+By default, the model configuration file must be located at:
 
-    ```yaml
-    models:
-        model_custom:
-            path: "models/model_custom"
-            names:    # Class labels
-            0: class_name0
-            1: class_name1
-            2: class_name2
-    ```
+```bash
+<path-to-packages>/config/models/models_config.yaml
+```
 
-2. Use the custom model in ROS Node
+If your project is already set up, this file should already exist.
 
-    ```cpp
-    // Load model configuration from YAML
-    // Fallback priority: User overrides → YAML config → package defaults
-    std::string model_type_ = "model_custom";  // Name of the YAML entry
+If not, you can create it manually:
 
-    auto object_model = rzv_model::UtilsROS::load_model_info(
-        "current_package",          // ROS 2 package containing the model
-        model_type_,                // Model type key (e.g., "model_custom")
-        model_path_param,           // Optional path override
-        class_names_param           // Optional class name override
-    );
+- Create a config/ directory at the project root.
+- Inside it, create a models/ directory.
+- Add the `models_config.yaml` file into that folder. See the [Model Configuration Reference Template](config/models/models_config.yaml) for details.
 
-    // Extract resolved configuration
-    model_path_ = object_model.model_path;
-    class_names_ = object_model.class_names;
 
-    ```
+If your project does not follow this structure, create it as shown below:
+
+```bash
+    <ROS2 packages>
+    ├── CMakeLists.txt
+    ├── config
+    │   └── models
+    │       ├── ai_model_name  ##  contains the output from RUHMI compilation.
+    │       └── models_config.yaml
+    └── ...
+```
+
+**2**. Use the custom model in ROS Node
+
+```cpp
+// Load model configuration from YAML
+// Fallback priority: User overrides → YAML config → package defaults
+std::string model_type_ = "ai_model_name";  // Name of the YAML entry
+
+auto object_model = rzv_model::UtilsROS::load_model_info(
+    "<ROS2 packages>",          // ROS 2 package containing the model
+    model_type_,                // Model type key (e.g., "model_custom")
+    model_path_param,           // Optional path override
+    class_names_param           // Optional class name override
+);
+
+// Extract resolved configuration
+model_path_ = object_model.model_path;
+class_names_ = object_model.class_names;
+
+```
 
 ## Dependencies
 
