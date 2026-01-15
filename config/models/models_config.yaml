@@ -1,0 +1,7 @@
+models:
+  model_custom:
+      path: "models/ai_model_name"   # Path to the model directory, replace the ai_model_name with your model name
+      names:    # Class labels
+      0: class_name0
+      1: class_name1
+      2: class_name2
