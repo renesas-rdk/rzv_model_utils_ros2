@@ -21,77 +21,7 @@
 namespace rzv_model
 {
 
-cv::Mat Utils::bgr_to_yuv422(const cv::Mat & bgr_image, YUV422Format format)
-{
-  // Convert BGR to YUV (I420/YUV420p)
-  cv::Mat yuv;
-  cv::cvtColor(bgr_image, yuv, cv::COLOR_BGR2YUV);
-
-  // Create YUV422 format image
-  cv::Mat yuv422 = cv::Mat(bgr_image.rows, bgr_image.cols, CV_8UC2);
-
-  for (int i = 0; i < bgr_image.rows; i++) {
-    for (int j = 0; j < bgr_image.cols; j += 2) {
-      // For each 2x1 block of pixels
-      if (j + 1 < bgr_image.cols) {
-        if (format == YUV422Format::YUYV) {
-          // YUYV format (Y0, U0, Y1, V0)
-          yuv422.at<cv::Vec2b>(i, j)[0] = yuv.at<cv::Vec3b>(i, j)[0];          // Y0
-          yuv422.at<cv::Vec2b>(i, j)[1] = yuv.at<cv::Vec3b>(i, j)[1];          // U0
-          yuv422.at<cv::Vec2b>(i, j + 1)[0] = yuv.at<cv::Vec3b>(i, j + 1)[0];  // Y1
-          yuv422.at<cv::Vec2b>(i, j + 1)[1] = yuv.at<cv::Vec3b>(i, j)[2];      // V0
-        } else {
-          // UYVY format (U0, Y0, V0, Y1)
-          yuv422.at<cv::Vec2b>(i, j)[0] = yuv.at<cv::Vec3b>(i, j)[1];          // U0
-          yuv422.at<cv::Vec2b>(i, j)[1] = yuv.at<cv::Vec3b>(i, j)[0];          // Y0
-          yuv422.at<cv::Vec2b>(i, j + 1)[0] = yuv.at<cv::Vec3b>(i, j)[2];      // V0
-          yuv422.at<cv::Vec2b>(i, j + 1)[1] = yuv.at<cv::Vec3b>(i, j + 1)[0];  // Y1
-        }
-      }
-    }
-  }
-
-  return yuv422;
-}
-
-cv::Mat Utils::rgba_to_yuv422(const cv::Mat & rgba_image, YUV422Format format)
-{
-  // First convert RGBA to RGB by dropping the alpha channel
-  cv::Mat rgb_image;
-  cv::cvtColor(rgba_image, rgb_image, cv::COLOR_RGBA2RGB);
-
-  // Then convert RGB to YUV
-  cv::Mat yuv;
-  cv::cvtColor(rgb_image, yuv, cv::COLOR_RGB2YUV);
-
-  // Create YUV422 format image
-  cv::Mat yuv422 = cv::Mat(rgba_image.rows, rgba_image.cols, CV_8UC2);
-
-  for (int i = 0; i < rgba_image.rows; i++) {
-    for (int j = 0; j < rgba_image.cols; j += 2) {
-      // For each 2x1 block of pixels
-      if (j + 1 < rgba_image.cols) {
-        if (format == YUV422Format::YUYV) {
-          // YUYV format (Y0, U0, Y1, V0)
-          yuv422.at<cv::Vec2b>(i, j)[0] = yuv.at<cv::Vec3b>(i, j)[0];          // Y0
-          yuv422.at<cv::Vec2b>(i, j)[1] = yuv.at<cv::Vec3b>(i, j)[1];          // U0
-          yuv422.at<cv::Vec2b>(i, j + 1)[0] = yuv.at<cv::Vec3b>(i, j + 1)[0];  // Y1
-          yuv422.at<cv::Vec2b>(i, j + 1)[1] = yuv.at<cv::Vec3b>(i, j)[2];      // V0
-        } else {
-          // UYVY format (U0, Y0, V0, Y1)
-          yuv422.at<cv::Vec2b>(i, j)[0] = yuv.at<cv::Vec3b>(i, j)[1];          // U0
-          yuv422.at<cv::Vec2b>(i, j)[1] = yuv.at<cv::Vec3b>(i, j)[0];          // Y0
-          yuv422.at<cv::Vec2b>(i, j + 1)[0] = yuv.at<cv::Vec3b>(i, j)[2];      // V0
-          yuv422.at<cv::Vec2b>(i, j + 1)[1] = yuv.at<cv::Vec3b>(i, j + 1)[0];  // Y1
-        }
-      }
-    }
-  }
-
-  return yuv422;
-}
-
-void Utils::encode_bounding_box_to_poses(
+void UtilsROS::encode_bounding_box_to_poses(
   geometry_msgs::msg::PoseArray & pose_array, const cv::Rect & bbox, const std::string & class_name,
   const int class_id, const float confidence)
 {
@@ -187,7 +117,7 @@ void Utils::encode_bounding_box_to_poses(
   }
 }
 
-void Utils::encode_oriented_bounding_box_to_poses(
+void UtilsROS::encode_oriented_bounding_box_to_poses(
   geometry_msgs::msg::PoseArray & pose_array, const cv::RotatedRect & obbox,
   const std::string & class_name, const int class_id, const float confidence)
 {
@@ -266,7 +196,7 @@ void Utils::encode_oriented_bounding_box_to_poses(
   }
 }
 
-std::unique_ptr<diagnostic_msgs::msg::DiagnosticStatus> Utils::encode_inference_timing_diagnostic(
+std::unique_ptr<diagnostic_msgs::msg::DiagnosticStatus> UtilsROS::encode_inference_timing_diagnostic(
   const std::string & message, const float pre_time, const float infer_time, const float post_time)
 {
   auto msg = std::make_unique<diagnostic_msgs::msg::DiagnosticStatus>();
@@ -289,7 +219,7 @@ std::unique_ptr<diagnostic_msgs::msg::DiagnosticStatus> Utils::encode_inference_
   return msg;
 }
 
-ModelConfig Utils::load_model_config(
+ModelConfig UtilsROS::load_model_config(
   const std::string & package_name, const std::string & model_name)
 {
   ModelConfig cfg;
@@ -315,11 +245,11 @@ ModelConfig Utils::load_model_config(
   return cfg;
 }
 
-ModelConfig Utils::load_model_info(
+ModelConfig UtilsROS::load_model_info(
   const std::string & package_name, const std::string & model_type,
   const std::string & path_override, const std::vector<std::string> & class_names_override)
 {
-  auto cfg = rzv_model::Utils::load_model_config(package_name, model_type);
+  auto cfg = rzv_model::UtilsROS::load_model_config(package_name, model_type);
   ModelConfig info;
   info.model_path = !path_override.empty() ? path_override : cfg.model_path;
   info.class_names = !class_names_override.empty() ? class_names_override : cfg.class_names;

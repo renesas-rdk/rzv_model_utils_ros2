@@ -8,9 +8,9 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rzv_model REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 # create target
@@ -30,9 +30,9 @@ target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
 # ROS2 dependencies
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
-  rzv_model
   geometry_msgs
   diagnostic_msgs
+  ament_index_cpp
   yaml-cpp
 )
 

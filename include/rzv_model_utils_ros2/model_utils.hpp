@@ -34,22 +34,9 @@ struct ModelConfig
   std::vector<std::string> class_names = {};
 };
 
-enum class YUV422Format
-{
-  YUYV,
-  UYVY
-};
-
-class Utils
+class UtilsROS
 {
 public:
-  // Convert BGR image to YUV422 format (YUYV or UYVY)
-  static cv::Mat bgr_to_yuv422(const cv::Mat & bgr_image, YUV422Format format = YUV422Format::YUYV);
-
-  // Convert RGBA image to YUV422 format (YUYV or UYVY)
-  static cv::Mat rgba_to_yuv422(
-    const cv::Mat & rgba_image, YUV422Format format = YUV422Format::YUYV);
-
   // Encode bounding box with metadata into a PoseArray for visualization
   static void encode_bounding_box_to_poses(
     geometry_msgs::msg::PoseArray & pose_array, const cv::Rect & bbox,
@@ -72,7 +59,8 @@ public:
 
   static ModelConfig load_model_info(
     const std::string & package_name, const std::string & model_type,
-    const std::string & path_override = "", const std::vector<std::string> & class_names_override = {});
+    const std::string & path_override = "",
+    const std::vector<std::string> & class_names_override = {});
 };
 
 }  // namespace rzv_model

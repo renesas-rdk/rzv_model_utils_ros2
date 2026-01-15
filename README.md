@@ -7,7 +7,6 @@ RZV Model Utils ROS2 is a utility library that provides a collection of helper f
 This package acts as a bridge between ROS 2 nodes and the underlying C++ AI model implementations, following ROS 2 design principles for parameters, package lookup, and resource paths.
 
 ## Features
-- Image format conversion (BGR / RGBA → YUV422)
 - Encoding detection or pose information into ROS 2 message types
 - Generating diagnostic messages for inference timing
 - Loading model configuration and metadata from ROS 2 packages
@@ -21,7 +20,7 @@ The package follows a layered architecture:
 
 -   **Utility Layer (rzv_model_utils_ros2)**:
 
-    Provides helper functions for model loading, image format conversion, bounding-box and keypoint encoding, and generating diagnostic messages.
+    Provides helper functions for model loading, bounding-box and keypoint encoding, and generating diagnostic messages.
 
 -   **AI Backend Layer (rzv_model)**:
     Implements the core C++ inference engine, including BaseModel, YOLO model variants, and all related pre-processing and post-processing logic.
@@ -53,7 +52,7 @@ Each entry defines the model path, class names file, and optional metadata used 
     // Fallback priority: User overrides → YAML config → package defaults
     std::string model_type_ = "model_custom";  // Name of the YAML entry
 
-    auto object_model = rzv_model::Utils::load_model_info(
+    auto object_model = rzv_model::UtilsROS::load_model_info(
         "current_package",          // ROS 2 package containing the model
         model_type_,                // Model type key (e.g., "model_custom")
         model_path_param,           // Optional path override
@@ -70,4 +69,3 @@ Each entry defines the model path, class names file, and optional metadata used 
 
 - ROS2
 - OpenCV
-- rzv_model
