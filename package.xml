@@ -13,6 +13,7 @@
   <depend>ament_index_cpp</depend>
   <depend>yaml-cpp</depend>
   <depend>diagnostic_msgs</depend>
+  <depend>libopencv-dev</depend>
 
   <exec_depend>rzv_model</exec_depend>
 
