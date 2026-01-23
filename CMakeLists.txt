@@ -12,6 +12,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc)
 
 # create target
 add_library(${PROJECT_NAME} SHARED
@@ -23,9 +24,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
-  $<BUILD_INTERFACE:/usr/include/renesas/opencv4>
-)
 
 # ROS2 dependencies
 ament_target_dependencies(${PROJECT_NAME}
@@ -33,17 +31,10 @@ ament_target_dependencies(${PROJECT_NAME}
   geometry_msgs
   diagnostic_msgs
   ament_index_cpp
-  yaml-cpp
 )
 
-# Non-ROS2 dependencies
-if(NOT DEFINED RENESAS_LIB_PATH) # Allow overriding via cross compilation
-  set(RENESAS_LIB_PATH "/usr/lib/aarch64-linux-gnu/renesas")
-endif()
-
 target_link_libraries(${PROJECT_NAME}
-  ${RENESAS_LIB_PATH}/libopencv_core.so
-  ${RENESAS_LIB_PATH}/libopencv_imgproc.so
+  ${OpenCV_LIBRARIES}
   yaml-cpp
 )
 
