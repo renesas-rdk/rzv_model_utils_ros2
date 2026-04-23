@@ -5,3 +5,5 @@ models:
       0: class_name0
       1: class_name1
       2: class_name2
+      # If your model was trained on BGR images, uncomment the line below. By default, models are assumed to be trained on RGB.
+      #input_order: bgr

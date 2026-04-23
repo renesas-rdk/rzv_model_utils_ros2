@@ -15,9 +15,9 @@
 // be subject to different terms.
 // ********************************************************************************************************************
 #include "rzv_model_utils_ros2/model_utils.hpp"
-#include <rclcpp/rclcpp.hpp>
 
 #include <algorithm>
+#include <rclcpp/rclcpp.hpp>
 
 namespace rzv_model
 {
@@ -240,6 +240,19 @@ ModelConfig UtilsROS::load_model_config(
       }
     }
 
+    if (m["input_order"]) {
+      std::string order = m["input_order"].as<std::string>();
+      std::transform(order.begin(), order.end(), order.begin(), ::tolower);
+      if (order == "rgb" || order == "bgr") {
+        cfg.input_order = order;
+      } else {
+        RCLCPP_WARN(
+          rclcpp::get_logger("Utils"),
+          "Model '%s' has unknown input_order '%s'; keeping default '%s'", model_name.c_str(),
+          order.c_str(), cfg.input_order.c_str());
+      }
+    }
+
   } catch (const std::exception & e) {
     RCLCPP_ERROR(
       rclcpp::get_logger("Utils"), "Error loading model '%s': %s", model_name.c_str(), e.what());
@@ -256,6 +269,7 @@ ModelConfig UtilsROS::load_model_info(
   ModelConfig info;
   info.model_path = !path_override.empty() ? path_override : cfg.model_path;
   info.class_names = !class_names_override.empty() ? class_names_override : cfg.class_names;
+  info.input_order = cfg.input_order;
   return info;
 }
 
