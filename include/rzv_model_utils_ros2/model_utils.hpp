@@ -33,6 +33,11 @@ struct ModelConfig
 {
   std::string model_path = "";
   std::vector<std::string> class_names = {};
+  // Channel order that the network expects on its input tensor.
+  // "rgb" (default) or "bgr". Configured per-model via models_config.yaml
+  // using the optional `input_order` key. Left as RGB when unspecified so
+  // existing models stay source-compatible.
+  std::string input_order = "rgb";
 };
 
 class UtilsROS
