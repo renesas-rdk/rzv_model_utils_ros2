@@ -40,6 +40,19 @@ struct ModelConfig
   std::string input_order = "rgb";
 };
 
+// Decoded counterpart of the metadata that
+// encode_bounding_box_to_poses / encode_oriented_bounding_box_to_poses
+// pack into a PoseArray. One entry per detection, populated from the first
+// 5 of the 8 poses that make up a single detection.
+struct DetectionMeta
+{
+  int class_id = 0;
+  float confidence = 0.0f;
+  // Up to ~15 characters, reconstructed from poses 1..4. Truncated names
+  // are common; callers that need exact names should look up by class_id.
+  std::string class_name = "";
+};
+
 class UtilsROS
 {
 public:
@@ -52,6 +65,14 @@ public:
   static void encode_oriented_bounding_box_to_poses(
     geometry_msgs::msg::PoseArray & pose_array, const cv::RotatedRect & obbox,
     const std::string & class_name = "", const int class_id = 0, const float confidence = 0.0f);
+
+  // Decode the metadata embedded by encode_bounding_box_to_poses /
+  // encode_oriented_bounding_box_to_poses. Each detection occupies a fixed
+  // stride of `poses_per_detection` poses (default 8 — the layout used by
+  // both axis-aligned and oriented bbox encoders). Trailing poses that do
+  // not form a full detection block are ignored.
+  static std::vector<DetectionMeta> decode_detections_from_poses(
+    const geometry_msgs::msg::PoseArray & pose_array, std::size_t poses_per_detection = 8);
 
   // Encode inference timing information into a DiagnosticStatus message
   static std::unique_ptr<diagnostic_msgs::msg::DiagnosticStatus> encode_inference_timing_diagnostic(

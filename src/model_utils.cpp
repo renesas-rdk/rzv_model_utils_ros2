@@ -197,6 +197,68 @@ void UtilsROS::encode_oriented_bounding_box_to_poses(
   }
 }
 
+std::vector<DetectionMeta> UtilsROS::decode_detections_from_poses(
+  const geometry_msgs::msg::PoseArray & pose_array, std::size_t poses_per_detection)
+{
+  std::vector<DetectionMeta> detections;
+  if (poses_per_detection == 0) {
+    return detections;
+  }
+  const std::size_t n = pose_array.poses.size() / poses_per_detection;
+  detections.reserve(n);
+
+  // Append a single ASCII char encoded as a double from one of the
+  // orientation components. The encoder uses 0.0 as "unset" for x/y/z and
+  // 1.0 as "unset" for w (because the default quaternion has w=1).
+  auto append_char = [](std::string & out, double v, bool is_w) {
+    if (is_w && v == 1.0) {
+      return;
+    }
+    if (!is_w && v == 0.0) {
+      return;
+    }
+    const int c = static_cast<int>(v);
+    if (c > 0 && c < 128) {
+      out.push_back(static_cast<char>(c));
+    }
+  };
+
+  for (std::size_t i = 0; i < n; ++i) {
+    DetectionMeta det;
+    const std::size_t base = i * poses_per_detection;
+
+    // Pose 0: class_id (orientation.x), confidence (orientation.y).
+    const auto & p0 = pose_array.poses[base + 0];
+    det.class_id = static_cast<int>(p0.orientation.x);
+    det.confidence = static_cast<float>(p0.orientation.y);
+
+    // Pose 1: chars 0..2 (x, y, z). w is left at default and ignored.
+    if (poses_per_detection > 1) {
+      const auto & p1 = pose_array.poses[base + 1];
+      append_char(det.class_name, p1.orientation.x, /*is_w=*/false);
+      append_char(det.class_name, p1.orientation.y, false);
+      append_char(det.class_name, p1.orientation.z, false);
+    }
+    // Poses 2..4: chars 3..14 (w, x, y, z each).
+    auto consume = [&](std::size_t pose_idx) {
+      if (pose_idx >= poses_per_detection) {
+        return;
+      }
+      const auto & p = pose_array.poses[base + pose_idx];
+      append_char(det.class_name, p.orientation.w, /*is_w=*/true);
+      append_char(det.class_name, p.orientation.x, false);
+      append_char(det.class_name, p.orientation.y, false);
+      append_char(det.class_name, p.orientation.z, false);
+    };
+    consume(2);
+    consume(3);
+    consume(4);
+
+    detections.push_back(std::move(det));
+  }
+  return detections;
+}
+
 std::unique_ptr<diagnostic_msgs::msg::DiagnosticStatus>
 UtilsROS::encode_inference_timing_diagnostic(
   const std::string & message, const float pre_time, const float infer_time, const float post_time)
